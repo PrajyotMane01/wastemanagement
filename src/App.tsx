@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import Index from "./pages/Index";
+import Blogs from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import SmoothScrollProvider from "./components/providers/SmoothScrollProvider";
 
@@ -29,6 +30,8 @@ const AppRoutes = () => (
       <Route path="/" element={<Index />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
+      <Route path="/Blogs" element={<Blogs />} />
+
     </Routes>
   </>
 );

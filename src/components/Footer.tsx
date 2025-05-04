@@ -45,10 +45,10 @@ const Footer = () => {
                 <span className="font-playfair font-semibold text-lg tracking-wider">Clearsite</span>
               </div>
               
-              <h2 className="text-xl md:text-3xl font-bold leading-tight mb-6">We create experiences that transform brands.</h2>
-              <p className="text-gray-400 mb-8">
+              <h2 className="text-xl md:text-3xl font-bold leading-tight mb-6">We create places that transform your experience.</h2>
+              {/* <p className="text-gray-400 mb-8">
                 Our agency crafts distinctive digital solutions that elevate your brand. With a focus on intuitive design and flawless development, we help businesses build stronger connections with their audience.
-              </p>
+              </p> */}
               
               <div className="flex space-x-4">
                 <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
@@ -101,7 +101,7 @@ const Footer = () => {
               </ul>
             </motion.div>
             
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -128,9 +128,9 @@ const Footer = () => {
                   </Link>
                 </li>
               </ul>
-            </motion.div>
+            </motion.div> */}
             
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
@@ -157,7 +157,7 @@ const Footer = () => {
                   </Link>
                 </li>
               </ul>
-            </motion.div>
+            </motion.div> */}
             
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -168,7 +168,7 @@ const Footer = () => {
               <h3 className="text-gray-400 text-sm font-medium mb-4 uppercase tracking-wider">Contact</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link to="/about" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
+                  <Link to="#about-us" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
                     <span>About Us</span>
                     <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </Link>
