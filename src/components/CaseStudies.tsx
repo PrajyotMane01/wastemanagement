@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Calendar, Clock } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const CaseStudies = () => {
   const [hoveredId, setHoveredId] = useState<number | null>(null);
@@ -181,21 +182,23 @@ const CaseStudies = () => {
       </div>
       
       <div className="mt-16 text-center">
-        <motion.button 
-          className="group relative overflow-hidden border border-[#6C3BAA] px-6 py-3 rounded-full bg-[#6C3BAA] text-white transition-all duration-500 flex items-center gap-2 mx-auto hover:pr-10"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <span>View All Blog Posts</span>
-          <motion.div 
-            className="inline-block"
-            initial={{ x: 0 }}
-            whileHover={{ x: 5 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
+        <Link to="/Blogs">
+          <motion.button 
+            className="group relative overflow-hidden border border-[#6C3BAA] px-6 py-3 rounded-full bg-[#6C3BAA] text-white transition-all duration-500 flex items-center gap-2 mx-auto hover:pr-10"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            <ArrowRight size={16} className="text-white transition-transform group-hover:translate-x-1" />
-          </motion.div>
-        </motion.button>
+            <span>View All Blog Posts</span>
+            <motion.div 
+              className="inline-block"
+              initial={{ x: 0 }}
+              whileHover={{ x: 5 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              <ArrowRight size={16} className="text-white transition-transform group-hover:translate-x-1" />
+            </motion.div>
+          </motion.button>
+        </Link>
       </div>
     </section>
   );
