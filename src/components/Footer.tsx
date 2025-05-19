@@ -1,9 +1,33 @@
-
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Facebook, Twitter, Instagram, Linkedin, ArrowUpRight } from "lucide-react";
+import { useCallback } from "react";
 
 const Footer = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleContactFormClick = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (location.pathname !== "/") {
+        navigate("/");
+        setTimeout(() => {
+          const element = document.getElementById("contact-us");
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 100);
+      } else {
+        const element = document.getElementById("contact-us");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    },
+    [location, navigate]
+  );
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -46,9 +70,6 @@ const Footer = () => {
               </div>
               
               <h2 className="text-xl md:text-3xl font-bold leading-tight mb-6">We create places that transform your experience.</h2>
-              {/* <p className="text-gray-400 mb-8">
-                Our agency crafts distinctive digital solutions that elevate your brand. With a focus on intuitive design and flawless development, we help businesses build stronger connections with their audience.
-              </p> */}
               
               <div className="flex space-x-4">
                 <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
@@ -65,125 +86,94 @@ const Footer = () => {
                 </a>
               </div>
             </motion.div>
-            
-            
           </motion.div>
           
           <div className="border-b border-white/10 mb-16"></div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-gray-400 text-sm font-medium mb-4 uppercase tracking-wider">About Us</h3>
+              <h3 className="text-gray-400 text-sm font-medium mb-4 uppercase tracking-wider">Pages</h3>
               <ul className="space-y-3">
                 <li>
+                  <Link to="/" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
+                    <span>Home</span>
+                    <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                </li>
+                <li>
                   <Link to="/about" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
-                    <span>Company</span>
+                    <span>About Us</span>
                     <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </Link>
                 </li>
                 <li>
-                  <Link to="/team" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
-                    <span>Team</span>
-                    <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/careers" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
-                    <span>Careers</span>
+                  <Link to="/Blogs" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
+                    <span>Blogs</span>
                     <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </Link>
                 </li>
               </ul>
             </motion.div>
             
-            {/* <motion.div
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-gray-400 text-sm font-medium mb-4 uppercase tracking-wider">Resources</h3>
+              <h3 className="text-gray-400 text-sm font-medium mb-4 uppercase tracking-wider">Legal</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link to="/blog" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
-                    <span>Blog</span>
+                  <Link to="/terms" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
+                    <span>Terms & Conditions</span>
                     <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </Link>
                 </li>
                 <li>
-                  <Link to="/resources" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
-                    <span>Resources</span>
+                  <Link to="/terms-of-service" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
+                    <span>Terms of Service</span>
                     <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </Link>
                 </li>
                 <li>
-                  <Link to="/guides" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
-                    <span>Guides</span>
+                  <Link to="/cookies-policy" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
+                    <span>Cookies Policy</span>
                     <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </Link>
                 </li>
               </ul>
-            </motion.div> */}
+            </motion.div>
             
-            {/* <motion.div
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-gray-400 text-sm font-medium mb-4 uppercase tracking-wider">Services</h3>
-              <ul className="space-y-3">
-                <li>
-                  <Link to="/services" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
-                    <span>All Services</span>
-                    <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/pricing" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
-                    <span>Pricing</span>
-                    <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/case-studies" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
-                    <span>Case Studies</span>
-                    <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                </li>
-              </ul>
-            </motion.div> */}
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              viewport={{ once: true }}
-            >
               <h3 className="text-gray-400 text-sm font-medium mb-4 uppercase tracking-wider">Contact</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link to="#about-us" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
-                    <span>About Us</span>
+                  <a href="mailto:info@clearsite.ae" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
+                    <span>info@clearsite.ae</span>
                     <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link to="/contact" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
-                    <span>Contact Us</span>
+                  <a href="tel:+971501234567" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
+                    <span>+971 50 123 4567</span>
                     <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link to="/case-studies" className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
-                    <span>Support</span>
+                  <a href="#contact-us" onClick={handleContactFormClick} className="text-sm text-gray-300 hover:text-white transition-colors relative group flex items-center">
+                    <span>Contact Form</span>
                     <ArrowUpRight className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </motion.div>
@@ -193,17 +183,17 @@ const Footer = () => {
           
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <p className="text-sm text-gray-400">© 2025 Artisan. All rights reserved.</p>
+              <p className="text-sm text-gray-400">© {new Date().getFullYear()} Clearsite. All rights reserved.</p>
             </div>
             
             <div className="flex space-x-6">
-              <Link to="/privacy" className="text-sm text-gray-400 hover:text-white transition-colors">
-                Privacy Policy
-              </Link>
               <Link to="/terms" className="text-sm text-gray-400 hover:text-white transition-colors">
+                Terms & Conditions
+              </Link>
+              <Link to="/terms-of-service" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Terms of Service
               </Link>
-              <Link to="/cookies" className="text-sm text-gray-400 hover:text-white transition-colors">
+              <Link to="/cookies-policy" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Cookies Policy
               </Link>
             </div>

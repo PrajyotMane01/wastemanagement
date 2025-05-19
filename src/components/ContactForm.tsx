@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,25 +8,99 @@ import { Send, Mail, Phone, MapPin } from "lucide-react";
 const ContactForm = () => {
   const [formState, setFormState] = useState({
     name: "",
-    phone: "",
+    phone: "+971",
     email: "",
     company: "",
-    serviceType: "Waste Collection",
+    serviceType: "",
     message: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>('');
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormState({
-      ...formState,
-      [name]: value,
+  
+    setFormState((prevState) => {
+      if (name === 'phone') {
+        // Extract digits only
+        const digitsOnly = value.replace(/\D/g, '');
+        
+        // Remove '971' if user types it manually
+        const withoutPrefix = digitsOnly.startsWith('971')
+          ? digitsOnly.slice(3)
+          : digitsOnly;
+  
+        // Limit to 9 digits after the prefix
+        const limitedDigits = withoutPrefix.slice(0, 9);
+  
+        // Only return +971 if digits are present
+        const phone = limitedDigits ? `+971${limitedDigits}` : '';
+  
+        return {
+          ...prevState,
+          [name]: phone,
+        };
+      }
+  
+      return {
+        ...prevState,
+        [name]: value,
+      };
     });
   };
+  
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formState);
-    // Add form submission logic here
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/contact-submissions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formState.name,
+          phone: formState.phone,
+          email: formState.email,
+          company: formState.company || undefined,
+          serviceType: formState.serviceType,
+          message: formState.message,
+          status: 'new'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to submit form');
+      }
+
+      // Clear form
+      setFormState({
+        name: "",
+        phone: "+971",
+        email: "",
+        company: "",
+        serviceType: "",
+        message: "",
+      });
+
+      setSubmitStatus('success');
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSubmitStatus('error');
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to submit form');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const containerVariants = {
@@ -158,7 +231,6 @@ const ContactForm = () => {
             viewport={{ once: true }}
             className="bg-white/5 backdrop-blur-sm p-8 rounded-xl border border-white/10 relative"
           >
-            <div className="absolute top-0 right-0 w-20 h-20 bg-[#6C3BAA]/20 rounded-bl-3xl rounded-tr-xl"></div>
             
             <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -172,13 +244,13 @@ const ContactForm = () => {
                     value={formState.name}
                     onChange={handleChange}
                     className="bg-[#3a3a3a] border-[#4a4a4a] text-white placeholder:text-gray-300 focus:border-[#6C3BAA] transition-colors"
-                    placeholder="Your name"
+                    placeholder="John Smith"
                     required
                   />
                 </div>
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium mb-2">
-                    Phone Number
+                    Phone Number 
                   </label>
                   <Input
                     id="phone"
@@ -187,7 +259,7 @@ const ContactForm = () => {
                     value={formState.phone}
                     onChange={handleChange}
                     className="bg-[#3a3a3a] border-[#4a4a4a] text-white placeholder:text-gray-300 focus:border-[#6C3BAA] transition-colors"
-                    placeholder="Your phone number"
+                    placeholder="+971 50 123 4567"
                     required
                   />
                 </div>
@@ -202,7 +274,7 @@ const ContactForm = () => {
                     value={formState.email}
                     onChange={handleChange}
                     className="bg-[#3a3a3a] border-[#4a4a4a] text-white placeholder:text-gray-300 focus:border-[#6C3BAA] transition-colors"
-                    placeholder="Your email"
+                    placeholder="john.smith@company.ae"
                     required
                   />
                 </div>
@@ -216,7 +288,7 @@ const ContactForm = () => {
                     value={formState.company}
                     onChange={handleChange}
                     className="bg-[#3a3a3a] border-[#4a4a4a] text-white placeholder:text-gray-300 focus:border-[#6C3BAA] transition-colors"
-                    placeholder="Your company"
+                    placeholder="Dubai Enterprises LLC"
                   />
                 </div>
               </div>
@@ -232,6 +304,7 @@ const ContactForm = () => {
                   className="bg-[#3a3a3a] border-[#4a4a4a] text-white rounded px-3 py-2 focus:border-[#6C3BAA] transition-colors w-full"
                   required
                 >
+                  <option value="">Choose your service</option>
                   <option value="Waste Collection">Waste Collection</option>
                   <option value="Site Clearance">Site Clearance</option>
                   <option value="On-Call Pickup">On-Call Pickup</option>
@@ -247,7 +320,7 @@ const ContactForm = () => {
                   value={formState.message}
                   onChange={handleChange}
                   className="bg-[#3a3a3a] border-[#4a4a4a] text-white placeholder:text-gray-300 min-h-[120px] focus:border-[#6C3BAA] transition-colors"
-                  placeholder="Your message or additional notes"
+                  placeholder="We need regular waste collection services for our office in Business Bay. Please provide details about your service packages."
                   required
                 />
               </div>
@@ -257,12 +330,33 @@ const ContactForm = () => {
               >
                 <button
                   type="submit"
-                  className="w-full bg-[#6C3BAA] hover:bg-[#5a3190] text-white py-3 rounded-sm flex items-center justify-center space-x-2 transition-all"
+                  disabled={isSubmitting}
+                  className={`w-full bg-[#6C3BAA] hover:bg-[#5a3190] text-white py-3 rounded-sm flex items-center justify-center space-x-2 transition-all ${
+                    isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
-                  <span>Send Message</span>
-                  <Send className="h-4 w-4" />
+                  {isSubmitting ? (
+                    <span>Submitting...</span>
+                  ) : (
+                    <>
+                      <span>Send Message</span>
+                      <Send className="h-4 w-4" />
+                    </>
+                  )}
                 </button>
               </motion.div>
+
+              {submitStatus === 'success' && (
+                <div className="text-green-400 text-center mt-4">
+                  Thank you for your message. We will get back to you soon!
+                </div>
+              )}
+
+              {submitStatus === 'error' && (
+                <div className="text-red-400 text-center mt-4">
+                  {errorMessage || 'Failed to submit form. Please try again.'}
+                </div>
+              )}
             </form>
           </motion.div>
         </div>

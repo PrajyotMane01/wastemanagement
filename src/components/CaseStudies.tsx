@@ -1,59 +1,44 @@
-
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Calendar, Clock } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
+interface BlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  date: string;
+  slug: string;
+  readTime?: string;
+  image?: {
+    url: string;
+  };
+}
+
 const CaseStudies = () => {
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const blogPosts = [
+  useEffect(() => {
+    const fetchRecentBlogs = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/blogs?limit=4&sort=-createdAt`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch blog posts');
+        }
+        const data = await response.json();
+        setBlogPosts(data.docs);
+      } catch (error) {
+        console.error('Error fetching blog posts:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    {
-      id: 2,
-      title: "Eco-Friendly Waste Disposal in Dubai: What You Need to Know",
-      excerpt: "Dubai has been pushing for greener, more sustainable construction practices. In this blog, we break down local guidelines for eco-conscious waste management and explain how ClearSite supports Dubai’s sustainability vision through responsible disposal, recycling partnerships, and landfill reduction",
-      category: "Sustainability",
-      bgColor: "#ffd7b5",
-      iconBg: "#C08457",
-      iconText: "eco",
-      date: "July 2023",
-      size: "small"
-    },
-    {
-      id: 3,
-      title: "What to Expect from a Professional Site Clearance Service",
-      excerpt: "Not all site clearance services are created equal. We highlight the benefits of working with a professional crew — from equipment and training to legal compliance — and explain why a reliable partner like ClearSite can help you avoid unnecessary delays and liabilities.",
-      category: "Services",
-      bgColor: "#E0F7FF",
-      iconBg: "#67D4F8",
-      iconText: "pro",
-      date: "August 2023",
-      size: "small"
-    },
-    {
-      id: 4,
-      title: "Sustainability in Waste Management",
-      excerpt: "How to reduce environmental impact through ClearSite's specialized services.",
-      category: "Green Initiatives",
-      bgColor: "#F0FFE6",
-      iconBg: "#8FA396",
-      iconText: "green",
-      date: "September 2023",
-      size: "medium"
-    },
-    {
-      id: 5,
-      title: "Legal Compliance in Waste Disposal for UAE Businesses",
-      excerpt: "Understanding Dubai Municipality standards and how to stay compliant.",
-      category: "Compliance",
-      bgColor: "#F9E6FF",
-      iconBg: "#6C3BAA",
-      iconText: "legal",
-      date: "October 2023",
-      size: "medium"
-    }
-  ];
+    fetchRecentBlogs();
+  }, []);
 
   // Animation variants
   const containerVariants = {
@@ -75,15 +60,18 @@ const CaseStudies = () => {
     }
   };
 
-  const getSizeClass = (size: string) => {
-    switch(size) {
- 
-      case 'medium':
-        return 'col-span-1 row-span-1 md:col-span-3 md:row-span-1';
-      default:
-        return 'col-span-1 row-span-1 md:col-span-3 md:row-span-1';
-    }
+  const getSizeClass = (index: number) => {
+    // All posts have the same size
+    return 'col-span-1 row-span-1 md:col-span-3 md:row-span-1';
   };
+
+  if (isLoading) {
+    return (
+      <section className="py-20 px-6 md:px-12 lg:px-20 bg-[#F8F6F2] overflow-hidden">
+        <div className="text-center">Loading...</div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 px-6 md:px-12 lg:px-20 bg-[#F8F6F2] overflow-hidden" id="case-studies">
@@ -108,39 +96,53 @@ const CaseStudies = () => {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
         >
-          {blogPosts.map((post) => (
+          {blogPosts.map((post, index) => (
             <motion.div 
               key={post.id}
-              className={`${getSizeClass(post.size)} relative group`}
+              className={`${getSizeClass(index)} relative group`}
               variants={itemVariants}
               onMouseEnter={() => setHoveredId(post.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
-              <div 
-                className={`w-full h-full rounded-2xl p-6 overflow-hidden transition-all duration-500 ease-out
-                           ${post.id === hoveredId ? 'scale-[0.98]' : 'scale-100'}`}
-                style={{ backgroundColor: post.bgColor }}
-              >
-                <div className="flex flex-col h-full">
-                  <div
-                    className={`aspect-video rounded-xl mb-4 transition-transform duration-500 overflow-hidden
-                               ${post.size === 'large' ? 'md:w-1/2' : 'w-full'}`}
-                    style={{ backgroundColor: post.iconBg }}
-                  >
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-white text-2xl font-bold">{post.iconText}</span>
+              <Link to={`/blog/${post.slug}`}>
+                <div 
+                  className={`w-full h-full rounded-2xl p-6 overflow-hidden transition-all duration-500 ease-out
+                             ${post.id === hoveredId ? 'scale-[0.98]' : 'scale-100'}`}
+                  style={{ backgroundColor: post.category === 'Sustainability' ? '#ffd7b5' : 
+                          post.category === 'Services' ? '#E0F7FF' : 
+                          post.category === 'Green Initiatives' ? '#F0FFE6' : '#F9E6FF' }}
+                >
+                  <div className="flex flex-col h-full">
+                    <div
+                      className="aspect-video rounded-xl transition-transform duration-500 overflow-hidden w-full"
+                    >
+                      {post.image && post.image.url ? (
+                        <img 
+                          src={post.image.url} 
+                          alt={post.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <img
+                          src="/hero-image-1.png"
+                          alt="Blog placeholder"
+                          className="w-full h-full object-cover opacity-60"
+                        />
+                      )}
                     </div>
-                  </div>
-                  
-                  <div className={`flex flex-col justify-between h-full ${post.size === 'large' && 'md:mt-4'}`}>
+                    
                     <div>
-                      <div className="flex items-center mb-2">
-                        <span className="inline-block px-3 py-1 text-xs rounded-full bg-black/10 text-black/80">{post.category}</span>
+                      <div className="flex items-center mt-3">
+                        <span className="inline-block px-3 py-1 text-xs rounded-full bg-black/10 text-black/80">
+                          {post.category}
+                        </span>
                       </div>
-                      <h3 className={`font-bold mb-3 text-[#2B2B2B] ${post.size === 'large' ? 'text-xl md:text-2xl' : 'text-lg'}`}>{post.title}</h3>
+                      <h3 className={`font-bold mt-2 text-[#2B2B2B]`}>
+                        {post.title}
+                      </h3>
                       
-                      {(post.size === 'large' || post.size === 'medium') && (
-                        <p className="text-sm text-[#2B2B2B]/70 mb-4">{post.excerpt}</p>
+                      {(index === 0 || index === 1) && (
+                        <p className="text-sm text-[#2B2B2B]/70 mt-2">{post.excerpt}</p>
                       )}
                     </div>
                     
@@ -148,7 +150,7 @@ const CaseStudies = () => {
                       <div className="flex items-center space-x-4 text-xs text-[#2B2B2B]/70">
                         <div className="flex items-center">
                           <Calendar size={12} className="mr-1" />
-                          <span>{post.date}</span>
+                          <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
                         </div>
                         {post.readTime && (
                           <div className="flex items-center">
@@ -175,7 +177,7 @@ const CaseStudies = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             </motion.div>
           ))}
         </motion.div>

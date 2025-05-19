@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,9 +8,15 @@ import Index from "./pages/Index";
 import Blogs from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import SmoothScrollProvider from "./components/providers/SmoothScrollProvider";
+import ScrollToTop from "@/components/ScrollToTop";
+import BlogPost from "@/pages/BlogPost";
+import AboutUs from "./pages/AboutUs";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import TermsOfService from "./pages/TermsOfService";
+import CookiesPolicy from "./pages/CookiesPolicy";
 
 // Scroll to top component for page transitions
-const ScrollToTop = () => {
+const PageScrollToTop = () => {
   const { pathname } = useLocation();
   
   useEffect(() => {
@@ -25,13 +30,17 @@ const queryClient = new QueryClient();
 
 const AppRoutes = () => (
   <>
-    <ScrollToTop />
+    <PageScrollToTop />
     <Routes>
       <Route path="/" element={<Index />} />
+      <Route path="/blogs" element={<Blogs />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
+      <Route path="/about" element={<AboutUs />} />
+      <Route path="/terms" element={<TermsAndConditions />} />
+      <Route path="/terms-of-service" element={<TermsOfService />} />
+      <Route path="/cookies-policy" element={<CookiesPolicy />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
-      <Route path="/Blogs" element={<Blogs />} />
-
     </Routes>
   </>
 );

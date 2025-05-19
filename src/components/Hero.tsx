@@ -3,7 +3,7 @@ import { motion, useAnimation, useTransform, useScroll, AnimatePresence } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, X } from "lucide-react";
+import { Link, Send, X } from "lucide-react";
 
 const Hero = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -55,6 +55,29 @@ const Hero = () => {
       window.removeEventListener("mousemove", handleMouseMove);
     };
   }, [controls]);
+
+  useEffect(() => {
+    if (isContactFormOpen) {
+      // Prevent scrolling on both body and html
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      // Add a class to the root element
+      document.documentElement.classList.add('overflow-hidden');
+    } else {
+      // Re-enable scrolling
+      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
+      // Remove the class
+      document.documentElement.classList.remove('overflow-hidden');
+    }
+
+    // Cleanup function
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
+      document.documentElement.classList.remove('overflow-hidden');
+    };
+  }, [isContactFormOpen]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -190,7 +213,7 @@ const Hero = () => {
             variants={itemVariants}
           >
             <span>Fast. Clean. </span>
-            <span className="text-[#6C3BAA]">Reliable.</span>
+            <span className="text-[#483285]">Reliable.</span>
           </motion.h1>
           
           <motion.p 
@@ -200,22 +223,19 @@ const Hero = () => {
             Simplifying waste management for a cleaner tomorrow.
           </motion.p>
           
-          <motion.div 
-            className="flex justify-center"
-            variants={itemVariants}
-          >
-            <motion.button 
-              className="bg-[#6C3BAA] text-white px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#5a3190] transition-all"
-              whileHover={{ 
-                scale: 1.05,
-                boxShadow: "0 10px 25px -5px rgba(108, 59, 170, 0.4)" 
-              }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setIsContactFormOpen(true)}
-            >
-              Request a Pickup
-            </motion.button>
-          </motion.div>
+          <motion.div
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.98 }}
+>
+  <a href="#contact-us">
+    <motion.button 
+   
+      className="bg-[#6C3BAA] text-white px-10 py-4 rounded-lg text-lg font-medium hover:bg-[#5a3190] transition-all"
+    >
+      Request a Pickup
+    </motion.button>
+    </a>
+</motion.div>
         </motion.div>
         
         {/* Right image column */}
@@ -259,7 +279,7 @@ const Hero = () => {
       transition={{ duration: 0.4, delay: 0.1 }}
       viewport={{ once: true }}
     >
-      <div className="bg-[#5a3190] p-2 rounded-full flex items-center justify-center">
+      <div className="bg-[#483285] p-2 rounded-full flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>

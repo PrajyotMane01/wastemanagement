@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ArrowUpRight, Book, Calendar, Clock, Search, Tag } from "lucide-react";
@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 // Types for our blog posts
 interface BlogPost {
@@ -21,61 +22,71 @@ interface BlogPost {
   iconBg: string;
   iconText: string;
   date: string;
-  readTime?: string;
+  readTime: string;
   size: "small" | "medium" | "large";
   slug: string;
+  image?: {
+    url: string;
+  };
 }
 
-// Type for Payload CMS post response
-interface PayloadPost {
-  id: string;
-  title: string;
-  excerpt?: string;
-  category?: { name: string };
-  bgColor?: string;
-  iconBg?: string;
-  iconText?: string;
-  createdAt: string;
-  readTime?: string;
-  content?: string;
-  size?: "small" | "medium" | "large";
-  slug: string;
+// Type for Payload CMS response
+interface PayloadResponse {
+  docs: Array<{
+    id: string;
+    title: string;
+    excerpt: string;
+    category: string;
+    bgColor: string;
+    iconBg: string;
+    iconText: string;
+    createdAt: string;
+    readTime: string;
+    size: "small" | "medium" | "large";
+    slug: string;
+    image?: {
+      url: string;
+    };
+  }>;
+  totalDocs: number;
+  limit: number;
+  totalPages: number;
+  page: number;
+  pagingCounter: number;
+  hasPrevPage: boolean;
+  hasNextPage: boolean;
+  prevPage: number | null;
+  nextPage: number | null;
 }
 
 // Function to fetch blog posts from Payload CMS API
 const fetchBlogPosts = async (): Promise<BlogPost[]> => {
   try {
-    // Payload CMS API endpoint
-    const response = await fetch("http://localhost:3000/api/blog-posts");
+    const response = await fetch("http://localhost:3000/api/blogs");
     if (!response.ok) {
       throw new Error(`Failed to fetch blog posts: ${response.status} ${response.statusText}`);
     }
     
-    const data = await response.json();
-    
-    // Check if the response has the expected structure
-    if (!data.docs || !Array.isArray(data.docs)) {
-      console.error("Unexpected API response structure:", data);
-      throw new Error("Unexpected API response structure");
-    }
+    const data: PayloadResponse = await response.json();
     
     // Map the Payload CMS response to our BlogPost interface
-    return data.docs.map((post: PayloadPost) => ({
+    return data.docs.map(post => ({
       id: post.id,
       title: post.title,
-      excerpt: post.excerpt || "",
-      category: post.category?.name || "Uncategorized",
-      bgColor: post.bgColor || "#F8F6F2",
-      iconBg: post.iconBg || "#6C3BAA",
-      iconText: post.iconText || post.category?.name?.substring(0, 3).toLowerCase() || "post",
+      excerpt: post.excerpt,
+      category: post.category,
+      bgColor: post.bgColor,
+      iconBg: post.iconBg,
+      iconText: post.iconText,
       date: new Date(post.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-      readTime: post.readTime || (post.content ? `${Math.ceil(post.content.length / 1000)} min read` : "3 min read"),
-      size: post.size || "medium",
-      slug: post.slug
+      readTime: post.readTime,
+      size: post.size,
+      slug: post.slug,
+      image: post.image
     }));
   } catch (error) {
-    console.error("Error fetching blog posts from Payload CMS:", error);
-    throw error; // Re-throw the error to be handled by React Query's error state
+    console.error("Error fetching blog posts:", error);
+    throw error;
   }
 };
 
@@ -83,14 +94,16 @@ const Blogs = () => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [email, setEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
   const postsPerPage = 6;
 
   // Fetch blog posts using React Query
   const { data: blogPosts = [], isLoading, error, isError } = useQuery({
     queryKey: ['blogPosts'],
     queryFn: fetchBlogPosts,
-    retry: 1, // Only retry once if the request fails
-    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 
   // Filter posts based on search term
@@ -143,6 +156,37 @@ const Blogs = () => {
         return 'col-span-1 row-span-1 md:col-span-3 md:row-span-1';
       default:
         return 'col-span-1 row-span-1 md:col-span-3 md:row-span-1';
+    }
+  };
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    setIsSubscribing(true);
+    try {
+      const response = await fetch("http://localhost:3000/api/newsletter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "You are already subscribed to our newsletter!");
+      }
+
+      toast.success("Successfully subscribed to our newsletter!");
+      setEmail("");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to subscribe");
+    } finally {
+      setIsSubscribing(false);
     }
   };
 
@@ -321,12 +365,20 @@ const Blogs = () => {
                             className={`aspect-video mb-4 rounded-xl overflow-hidden relative
                                      ${post.size === 'large' ? 'md:w-1/2' : 'w-full'}`}
                           >
-                            <div 
-                              className="w-full h-full flex items-center justify-center"
-                              style={{ backgroundColor: post.iconBg }}
-                            >
-                              <span className="text-white text-2xl font-bold">{post.iconText}</span>
-                            </div>
+                            {post.image && post.image.url ? (
+                              <img 
+                                src={post.image.url} 
+                                alt={post.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div 
+                                className="w-full h-full flex items-center justify-center"
+                                style={{ backgroundColor: post.iconBg }}
+                              >
+                                <span className="text-white text-2xl font-bold">{post.iconText}</span>
+                              </div>
+                            )}
                             <div 
                               className={cn(
                                 "absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 transition-opacity duration-300",
@@ -472,22 +524,27 @@ const Blogs = () => {
               Get the latest insights, case studies, and waste management tips delivered directly to your inbox. No spam, just valuable content.
             </p>
             
-            <div className="flex flex-col md:flex-row gap-4 max-w-lg mx-auto">
+            <form onSubmit={handleSubscribe} className="flex flex-col md:flex-row gap-4 max-w-lg mx-auto">
               <Input 
                 type="email" 
                 placeholder="Enter your email address" 
                 className="flex-grow md:flex-1 border-[#6C3BAA]/20 focus:border-[#6C3BAA] focus:ring-1 focus:ring-[#6C3BAA] bg-white/80 py-6"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isSubscribing}
               />
               <motion.button 
-                className="group relative overflow-hidden bg-[#6C3BAA] px-6 py-3 rounded-lg text-white transition-all duration-500 flex items-center justify-center gap-2 hover:bg-[#5a3190]"
+                type="submit"
+                className="group relative overflow-hidden bg-[#6C3BAA] px-6 py-3 rounded-lg text-white transition-all duration-500 flex items-center justify-center gap-2 hover:bg-[#5a3190] disabled:opacity-50 disabled:cursor-not-allowed"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                disabled={isSubscribing}
               >
-                <span className="relative z-10">Subscribe</span>
+                <span className="relative z-10">{isSubscribing ? "Subscribing..." : "Subscribe"}</span>
                 <ArrowRight size={16} className="relative z-10 transition-transform group-hover:translate-x-1" />
                 <div className="absolute inset-0 bg-[#C08457] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
               </motion.button>
-            </div>
+            </form>
           </div>
         </motion.div>
       </section>
