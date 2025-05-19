@@ -108,7 +108,7 @@ const Navbar = () => {
   return <motion.nav className={cn("fixed w-full py-4 px-6 md:px-12 lg:px-20 flex items-center justify-between z-50 transition-all duration-300", isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm" : "bg-transparent")} initial="hidden" animate="visible" variants={navVariants}>
            <motion.div variants={itemVariants} className="flex items-center">
         <Link to="/" className="flex items-center space-x-2">
-          <img src="/logo.svg" alt="Clear Site Logo" className="h-24 -my-4" />
+          <img src="/logo.png" alt="Clear Site Logo" className="h-24 -my-4" />
         </Link>
       </motion.div>
       
